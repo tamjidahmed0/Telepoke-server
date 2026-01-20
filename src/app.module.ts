@@ -9,11 +9,12 @@ import { RedisModule } from './redis/redis.module';
 import { NotificationModule } from './notification/notification.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { MediaModule } from './media/media.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    MongooseModule.forRoot('mongodb://localhost/telepoke'),
+    MongooseModule.forRoot(process.env.DATABASE_URL as string),
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'assets'),
       serveRoot: '/assets'
@@ -27,7 +28,8 @@ import { join } from 'path';
     FirebaseModule,
     ChatModule,
     RedisModule,
-    NotificationModule
+    NotificationModule,
+    MediaModule
   ],
   controllers: [],
   providers: [],

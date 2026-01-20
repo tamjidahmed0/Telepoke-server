@@ -13,7 +13,7 @@ export class FirebaseService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>
   ) {
-    
+
 
     // Initialize Firebase Admin
     this.adminApp = admin.initializeApp({
@@ -57,7 +57,7 @@ export class FirebaseService {
       //  Only send data, no notification object
       data: {
         title: sender_user?.name ?? '',
-        body, 
+        body,
         sender_id,
         receiver_id,
         avatar: sender_user?.profilePhotoUrl ?? '',

@@ -7,6 +7,7 @@ import { User } from 'src/user/schemas/user.schema';
 import { FirebaseService } from 'src/firebase/firebase.service';
 import { Message } from '../schemas/message.schema';
 import { ConversationService } from '../services/conversation.service';
+import { GatewayMessageDto } from '../dto/gateway-message.dto';
 
 
 @WebSocketGateway({ cors: { origin: '*' } })
@@ -17,7 +18,7 @@ export class ChatGateway {
 
 
     constructor(
-        @InjectModel(Message.name) private messageModel: Model<Message>,
+        // @InjectModel(Message.name) private messageModel: Model<Message>,
         private readonly redisService: RedisService,
         private readonly firebaseService: FirebaseService,
         private readonly conversationService: ConversationService
@@ -38,7 +39,7 @@ export class ChatGateway {
     // 1 to 1 message 
     @SubscribeMessage('received-message')
     async handleMessage(
-        @MessageBody() data: any,
+        @MessageBody() data: GatewayMessageDto,
         @ConnectedSocket() client: Socket
     ) {
         // console.log('Message received:', data);
@@ -58,7 +59,7 @@ export class ChatGateway {
        const message = await this.conversationService.createConversation({
             sender_id: sender_id,
             receiver_id: data.receiver_id,
-            messageType: data.messageType,
+            messageType: data.messageType, 
             text: data.text,
             replyTo: data.replyTo
         })
