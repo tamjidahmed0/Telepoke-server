@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
 import { Model } from 'mongoose';
@@ -18,125 +18,106 @@ export class UserService {
   ) { }
 
 
-  //create user
+  //create user service
   async createUser(createUserDto: CreateUserDto) {
-
-    try {
-
-      const check_user_exist = await this.userModel.findOne({ email: createUserDto.email });
-
-      if (check_user_exist === null) {
-
-        // password hash
-        const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-
-        const tempUser = {
-          ...createUserDto,
-          password: hashedPassword,
-        };
-
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-        const response = await this.redisService.setObject(`${createUserDto.email}`, { ...tempUser, otp }, 300);
-
-
-        return response
-
-      } else {
-        return { msg: 'User already exist' }
-      }
-
-    } catch (error) {
-      throw error
+    const existingUser = await this.userModel.findOne({ email: createUserDto.email });
+    if (existingUser) {
+      throw new BadRequestException('User already exists');
     }
 
+    // Hash password
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+    const tempUser = {
+      ...createUserDto,
+      password: hashedPassword,
+    };
+
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Store in Redis with TTL 300s (5 min)
+    await this.redisService.setObject(`${createUserDto.email}`, { ...tempUser, otp }, 300);
+
+    return {
+      msg: 'Otp sent to your mail',
+      code: 201,
+      otp_length: 6,
+      timer: 180,
+      email: createUserDto.email,
+    };
   }
+
+
+
+
 
 
   //verify otp service
   async verifyOtp(verifyOtpDto: VerifyOtpDto) {
-    try {
-      const getObject = await this.redisService.getObject(verifyOtpDto.email);
+    const cachedUser = await this.redisService.getObject(verifyOtpDto.email);
 
-      if (getObject === null) {
-        return {
-          msg: "Otp expired",
-          code: 400
-        }
-      }
-
-      if (getObject.otp === verifyOtpDto.otp.toString()) {
-
-        const user_save = await this.userModel.create(getObject);
-        const access_token = this.jwtService.sign({
-          id: user_save._id
-        })
-
-        if (user_save) {
-          await this.redisService.del(verifyOtpDto.email);
-          return {
-            msg: 'Verified',
-            code: 201,
-            access_token
-          }
-        }
-
-
-      } else {
-        return {
-          msg: "Not matched",
-          code: 400
-        }
-      }
-    } catch (error) {
-      throw error
+    if (!cachedUser) {
+      throw new BadRequestException('OTP expired');
     }
 
+    if (cachedUser.otp !== verifyOtpDto.otp.toString()) {
+      throw new BadRequestException('OTP not matched');
+    }
+
+    // Create user
+    const savedUser = await this.userModel.create(cachedUser);
+
+    // Generate JWT
+    const access_token = this.jwtService.sign({ id: savedUser._id });
+
+    // Delete OTP from Redis
+    await this.redisService.del(verifyOtpDto.email);
+
+    return {
+      msg: 'Verified',
+      access_token,
+      id: savedUser._id,
+    };
   }
 
 
-  //login user
+
+
+
+
+
+  //user login service
   async userLogin(userLoginDto: UserLoginDto) {
+    const user = await this.userModel.findOne({ email: userLoginDto.email });
 
-    const check_user = await this.userModel.findOne({ email: userLoginDto.email });
-
-
-    if (check_user !== null) {
-
-      const verify_pass = await bcrypt.compare(userLoginDto.password, check_user.password)
-
-      if (verify_pass) {
-
-        const access_token = this.jwtService.sign({
-          id: check_user._id
-        })
-
-        await this.userModel.findOneAndUpdate({ email: userLoginDto.email },
-          { FCMtoken: userLoginDto.FCMtoken }
-        );
-
-        return {
-          access_token,
-          id: check_user._id,
-          code: 201
-        }
-      } else {
-        return {
-          code: 401,
-          msg: 'Email or password wrong'
-        }
-      }
-
-    } else {
-      return {
-        code: 401,
-        msg: 'Email or password wrong'
-      }
+    if (!user) {
+      throw new UnauthorizedException('Email or password wrong');
     }
 
+    const isValid = await bcrypt.compare(userLoginDto.password, user.password);
 
+    if (!isValid) {
+      throw new UnauthorizedException('Email or password wrong');
+    }
 
+    // Update FCM token if provided
+    if (userLoginDto.FCMtoken) {
+      await this.userModel.updateOne(
+        { email: userLoginDto.email },
+        { FCMtoken: userLoginDto.FCMtoken },
+      );
+    }
+
+    const access_token = this.jwtService.sign({ id: user._id });
+
+    return {
+      access_token,
+      id: user._id,
+    };
   }
+
+
 
 
 

@@ -1,7 +1,11 @@
 import { BadRequestException, Body, Controller, HttpCode, Post, UnauthorizedException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto, UserLoginDto, VerifyOtpDto } from './user.dto';
+import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
 
+
+
+@ApiTags('users')
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) { };
@@ -9,71 +13,107 @@ export class UserController {
     //user create controller
     @Post()
     @HttpCode(201)
-    async create(@Body() createUserDto: CreateUserDto) {
-
-        const response = await this.userService.createUser(createUserDto);
-
-        if (response === 'OK') {
-            return {
-                msg: "Otp sent to your mail",
+    @ApiOperation({ summary: 'Create new user and send OTP' })
+    @ApiResponse({
+        status: 201,
+        description: 'OTP sent to user email',
+        schema: {
+            example: {
+                msg: 'Otp sent to your mail',
                 code: 201,
                 otp_length: 6,
                 timer: 180,
-                email: createUserDto.email
-            }
-        } else {
-            throw new BadRequestException({
-                msg: 'User already exist',
-                code: 400
-            })
-        }
-
-
-
+                email: 'user@gmail.com',
+            },
+        },
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'User already exists',
+        schema: {
+            example: {
+                statusCode: 400,
+                message: 'User already exists',
+                error: 'Bad Request',
+            },
+        },
+    })
+    async create(@Body() createUserDto: CreateUserDto) {
+        return this.userService.createUser(createUserDto);
     }
 
 
 
-    //OTP verify controller
+
     @Post('/verify/otp')
     @HttpCode(201)
+    @ApiOperation({ summary: 'Verify OTP and create user' })
+    @ApiResponse({
+        status: 201,
+        description: 'OTP verified successfully',
+        schema: {
+            example: {
+                msg: 'Verified',
+                access_token: 'jwt.token.here',
+                id: '64f1abc123',
+            },
+        },
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'OTP expired or not matched',
+        schema: {
+            example: {
+                statusCode: 400,
+                message: 'OTP expired',
+                error: 'Bad Request',
+            },
+        },
+    })
     async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
-
-        const response = await this.userService.verifyOtp(verifyOtpDto);
-        if (response?.code === 400) {
-            throw new BadRequestException({
-                msg: response.msg,
-                code: 400
-            })
-        } else {
-            return response;
-        }
-
-
+        return this.userService.verifyOtp(verifyOtpDto);
     }
 
 
-    //user login
+
+
+
+
+
+
+
+
+
     @Post('/signin')
     @HttpCode(201)
+    @ApiOperation({ summary: 'User login' })
+    @ApiResponse({
+        status: 201,
+        description: 'Login successful',
+        schema: {
+            example: {
+                access_token: 'jwt.token.here',
+                id: '64f1abc123',
+            },
+        },
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'Invalid email or password',
+        schema: {
+            example: {
+                statusCode: 401,
+                message: 'Email or password wrong',
+                error: 'Unauthorized',
+            },
+        },
+    })
     async userLogin(@Body() userLoginDto: UserLoginDto) {
-        const response = await this.userService.userLogin(userLoginDto);
-       
-        if (response?.code === 201) {
-             console.log('done 201')
-            return {
-                access_token: response.access_token,
-                id: response.id,
-                code: response.code
-            }
-        } else {
-                console.log('done 401')
-            throw new UnauthorizedException({
-                code: response?.code,
-                msg: response?.msg 
-            })
- 
-        }
-    } 
+        return this.userService.userLogin(userLoginDto);
+    }
+
+
+
+
 
 } 

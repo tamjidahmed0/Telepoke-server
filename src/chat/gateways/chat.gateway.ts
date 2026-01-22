@@ -1,11 +1,7 @@
-import { InjectModel } from '@nestjs/mongoose';
 import { WebSocketGateway, SubscribeMessage, MessageBody, ConnectedSocket, WebSocketServer } from '@nestjs/websockets';
-import { Model } from 'mongoose';
 import { Socket, Server } from 'socket.io';
 import { RedisService } from 'src/redis/redis.service';
-import { User } from 'src/user/schemas/user.schema';
 import { FirebaseService } from 'src/firebase/firebase.service';
-import { Message } from '../schemas/message.schema';
 import { ConversationService } from '../services/conversation.service';
 import { GatewayMessageDto } from '../dto/gateway-message.dto';
 
@@ -18,7 +14,6 @@ export class ChatGateway {
 
 
     constructor(
-        // @InjectModel(Message.name) private messageModel: Model<Message>,
         private readonly redisService: RedisService,
         private readonly firebaseService: FirebaseService,
         private readonly conversationService: ConversationService
@@ -52,14 +47,14 @@ export class ChatGateway {
             return;
         }
 
-        console.log(user, 'ok ok')
+        console.log(user, 'user')
         console.log(data, 'data')
 
 
-       const message = await this.conversationService.createConversation({
+        const message = await this.conversationService.createConversation({
             sender_id: sender_id,
             receiver_id: data.receiver_id,
-            messageType: data.messageType, 
+            messageType: data.messageType,
             text: data.text,
             replyTo: data.replyTo
         })
@@ -72,7 +67,7 @@ export class ChatGateway {
                 receiver_id: data.receiver_id,
                 sender_id: sender_id,
                 body: data.text,
-                message_id : message._id.toString()
+                message_id: message._id.toString()
 
             });
 

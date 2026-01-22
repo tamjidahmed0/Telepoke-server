@@ -1,0 +1,316 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/users": {
+      "post": {
+        "operationId": "UserController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OTP sent to user email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "msg": "Otp sent to your mail",
+                    "code": 201,
+                    "otp_length": 6,
+                    "timer": 180,
+                    "email": "user@gmail.com"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "User already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "User already exists",
+                    "error": "Bad Request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create new user and send OTP",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/users/verify/otp": {
+      "post": {
+        "operationId": "UserController_verifyOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OTP verified successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "msg": "Verified",
+                    "access_token": "jwt.token.here",
+                    "id": "64f1abc123"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "OTP expired or not matched",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 400,
+                    "message": "OTP expired",
+                    "error": "Bad Request"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Verify OTP and create user",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/users/signin": {
+      "post": {
+        "operationId": "UserController_userLogin",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "access_token": "jwt.token.here",
+                    "id": "64f1abc123"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid email or password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "statusCode": 401,
+                    "message": "Email or password wrong",
+                    "error": "Unauthorized"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "User login",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/firebase/send": {
+      "post": {
+        "operationId": "FirebaseController_sendNotification",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Firebase"
+        ]
+      }
+    },
+    "/api/conversation/{user_id}": {
+      "get": {
+        "operationId": "ConversationController_getConversation",
+        "parameters": [
+          {
+            "name": "user_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Conversation"
+        ]
+      }
+    },
+    "/api/message/{conversation_id}/{user_id}": {
+      "get": {
+        "operationId": "MessageController_getMessages",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "user_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Message"
+        ]
+      }
+    },
+    "/api/notification/delivered": {
+      "post": {
+        "operationId": "NotificationController_markAsDelivered",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Notification"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Telepoke API",
+    "description": "Backend API documentation for Telepoke messaging application",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Tamjid"
+          },
+          "email": {
+            "type": "string",
+            "example": "user@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "123456"
+          },
+          "FCMtoken": {
+            "type": "string",
+            "example": "hsbfhdsfgyggfiwehfudhs"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password",
+          "FCMtoken"
+        ]
+      },
+      "VerifyOtpDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@gmail.com"
+          },
+          "otp": {
+            "type": "number",
+            "example": 256422
+          }
+        },
+        "required": [
+          "email",
+          "otp"
+        ]
+      },
+      "UserLoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "123456"
+          },
+          "FCMtoken": {
+            "type": "string",
+            "example": "hsbfhdsfgyggfiwehfudhs"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "FCMtoken"
+        ]
+      }
+    }
+  }
+}
