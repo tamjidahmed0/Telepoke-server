@@ -1,6 +1,6 @@
-# Telepoke Backend
+# Telepoke Server
 
-Backend of the **Telepoke Chat Application** built with **NestJS**.  
+Server of the **Telepoke Chat Application** built with **NestJS**.  
 Supports real-time chat, notifications, and push notifications using **Socket.io** with **Redis** for scalability.
 
 ## Features
@@ -29,8 +29,8 @@ Supports real-time chat, notifications, and push notifications using **Socket.io
 1. Clone repository:
 
 ```bash
-git clone https://github.com/tamjidahmed0/telepoke-backend.git
-cd telepoke-backend
+git clone https://github.com/tamjidahmed0/Telepoke-server.git
+cd telepoke-server
 
 
 
@@ -50,6 +50,6 @@ REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 
 
-Run backend:
+Run Server:
 
 npm run start:dev
