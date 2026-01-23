@@ -6,6 +6,9 @@ import { CreateUserDto, UserLoginDto, VerifyOtpDto } from './user.dto';
 import { RedisService } from '../redis/redis.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { MailService } from 'src/mail/mail.service';
+
+
 
 
 
@@ -14,7 +17,8 @@ export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     private readonly redisService: RedisService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private readonly mailService: MailService
   ) { }
 
 
@@ -38,6 +42,15 @@ export class UserService {
 
     // Store in Redis with TTL 300s (5 min)
     await this.redisService.setObject(`${createUserDto.email}`, { ...tempUser, otp }, 300);
+
+    // Send OTP via email
+    const subject = 'Your OTP Code';
+    await this.mailService.sendMail(createUserDto.email, subject, 'otp', {
+      name: createUserDto.name,
+      otp,
+      expiry: '5 minutes',
+
+    });
 
     return {
       msg: 'Otp sent to your mail',
@@ -68,11 +81,17 @@ export class UserService {
     // Create user
     const savedUser = await this.userModel.create(cachedUser);
 
+
     // Generate JWT
     const access_token = this.jwtService.sign({ id: savedUser._id });
 
     // Delete OTP from Redis
     await this.redisService.del(verifyOtpDto.email);
+
+
+    // Send welcome email
+    const subject = 'Welcome to TelePoke!';
+    await this.mailService.sendMail(savedUser.email, subject, 'welcome', { name: savedUser.name })
 
     return {
       msg: 'Verified',

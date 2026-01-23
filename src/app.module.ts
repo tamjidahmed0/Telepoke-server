@@ -10,6 +10,7 @@ import { NotificationModule } from './notification/notification.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { MediaModule } from './media/media.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { MediaModule } from './media/media.module';
     ChatModule,
     RedisModule,
     NotificationModule,
-    MediaModule
+    MediaModule,
+    MailModule
   ],
   controllers: [],
   providers: [],

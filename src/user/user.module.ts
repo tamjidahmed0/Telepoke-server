@@ -4,9 +4,10 @@ import { UserController } from './user.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema, User } from './schemas/user.schema';
 import { RedisModule } from 'src/redis/redis.module';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
-  imports : [RedisModule, MongooseModule.forFeature([{name: User.name, schema: UserSchema}])],
+  imports : [RedisModule, MailModule, MongooseModule.forFeature([{name: User.name, schema: UserSchema}])],
   providers: [UserService],
   controllers: [UserController]
 })

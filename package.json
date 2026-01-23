@@ -36,7 +36,9 @@
     "class-validator": "^0.14.2",
     "firebase-admin": "^13.5.0",
     "ioredis": "^5.8.2",
+    "lodash": "^4.17.23",
     "mongoose": "^8.19.2",
+    "nodemailer": "^7.0.12",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1"
