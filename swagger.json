@@ -276,8 +276,7 @@
         "required": [
           "name",
           "email",
-          "password",
-          "FCMtoken"
+          "password"
         ]
       },
       "VerifyOtpDto": {

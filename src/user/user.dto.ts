@@ -1,11 +1,7 @@
-import { IsString, IsOptional, IsNotEmpty, IsEmail, IsArray, IsDate, isEmail, IsNumber } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsString, IsOptional, IsNotEmpty, IsEmail, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
-  @IsOptional()
-  @IsString()
-  phoneNumber?: string;
 
   @ApiProperty({ example: 'Tamjid' })
   @IsString()
@@ -22,27 +18,11 @@ export class CreateUserDto {
   @IsNotEmpty()
   password: string;
 
+
+  @ApiProperty({ example: 'hsbfhdsfgyggfiwehfudhs', required:false })
   @IsOptional()
   @IsString()
-  profilePhotoUrl?: string;
-
-  @IsOptional()
-  @IsString()
-  about?: string;
-
-  @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  lastSeen?: Date;
-
-  @IsOptional()
-  @IsArray()
-  blockedUsers?: string[];
-
-  @ApiProperty({ example: 'hsbfhdsfgyggfiwehfudhs' })
-  @IsNotEmpty()
-  @IsString()
-  FCMtoken: string;
+  FCMtoken?: string;
 }
 
 export class VerifyOtpDto {
@@ -70,9 +50,9 @@ export class UserLoginDto {
   password: string;
 
   @ApiProperty({ example: 'hsbfhdsfgyggfiwehfudhs' })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  FCMtoken: string;
+  FCMtoken?: string;
 
 
 }
