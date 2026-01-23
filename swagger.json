@@ -152,20 +152,6 @@
         ]
       }
     },
-    "/api/firebase/send": {
-      "post": {
-        "operationId": "FirebaseController_sendNotification",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Firebase"
-        ]
-      }
-    },
     "/api/conversation/{user_id}": {
       "get": {
         "operationId": "ConversationController_getConversation",
@@ -180,10 +166,21 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": ""
+          "201": {
+            "description": "Conversation retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CreateConversationDto"
+                  }
+                }
+              }
+            }
           }
         },
+        "summary": "Get conversation",
         "tags": [
           "Conversation"
         ]
@@ -211,10 +208,21 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": ""
+          "201": {
+            "description": "Messages retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CreateMessageDto"
+                  }
+                }
+              }
+            }
           }
         },
+        "summary": "Get messages of a conversation",
         "tags": [
           "Message"
         ]
@@ -309,6 +317,127 @@
           "email",
           "password",
           "FCMtoken"
+        ]
+      },
+      "CreateConversationDto": {
+        "type": "object",
+        "properties": {
+          "conversationId": {
+            "type": "string",
+            "example": "6973716d12d3c768d7600a2a",
+            "description": "Conversation ID"
+          },
+          "receiver_id": {
+            "type": "string",
+            "example": "69736f6512d3c768d7600a27",
+            "description": "Other participant user ID"
+          },
+          "type": {
+            "type": "string",
+            "example": "direct",
+            "enum": [
+              "direct",
+              "group"
+            ],
+            "description": "Conversation type"
+          },
+          "displayName": {
+            "type": "string",
+            "example": "jahid",
+            "description": "Display name for conversation"
+          },
+          "displayImage": {
+            "type": "string",
+            "example": "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+            "nullable": true,
+            "description": "Display image (optional)"
+          },
+          "lastMessageText": {
+            "type": "string",
+            "example": "eito valo...tor?",
+            "nullable": true,
+            "description": "Last message text"
+          },
+          "lastMessageAt": {
+            "type": "string",
+            "example": "2026-01-23T13:17:18.110Z",
+            "description": "Last message time"
+          },
+          "unreadCount": {
+            "type": "number",
+            "example": 3,
+            "description": "Unread message count for current user"
+          }
+        },
+        "required": [
+          "conversationId",
+          "receiver_id",
+          "type",
+          "displayName",
+          "lastMessageAt",
+          "unreadCount"
+        ]
+      },
+      "CreateMessageDto": {
+        "type": "object",
+        "properties": {
+          "conversation_id": {
+            "type": "string",
+            "example": "64f1abc123"
+          },
+          "sender_id": {
+            "type": "string",
+            "example": "64f1abc456"
+          },
+          "receiver_id": {
+            "type": "string",
+            "example": "64f1abc789"
+          },
+          "messageType": {
+            "type": "string",
+            "example": "TEXT",
+            "enum": [
+              "TEXT",
+              "IMAGE",
+              "VIDEO"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "example": "Hello!",
+            "nullable": true
+          },
+          "mediaUrl": {
+            "type": "string",
+            "example": null,
+            "nullable": true
+          },
+          "replyTo": {
+            "type": "string",
+            "example": null,
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "example": "seen",
+            "enum": [
+              "sent",
+              "delivered",
+              "seen"
+            ]
+          },
+          "time": {
+            "type": "string",
+            "example": "2023-09-01T12:34:56.789Z"
+          }
+        },
+        "required": [
+          "conversation_id",
+          "sender_id",
+          "receiver_id",
+          "messageType",
+          "status",
+          "time"
         ]
       }
     }

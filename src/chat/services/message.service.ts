@@ -2,14 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Message } from '../schemas/message.schema';
 import { Model, Types } from 'mongoose';
-import { User } from 'src/user/schemas/user.schema';
+
 
 @Injectable()
 export class MessageService {
 
     constructor(
         @InjectModel(Message.name) private messageModel: Model<Message>,
-        @InjectModel(User.name) private userModel: Model<User>
     ) { }
 
 
@@ -20,11 +19,13 @@ export class MessageService {
             .find({
                 conversation_id: new Types.ObjectId(conversation_id),
                 deletedFor: { $ne: user_id },
+                $or: [
+                    { sender_id: user_id },
+                    { receiver_id: user_id }
+                ]
             })
             .sort({ createdAt: 1 })
             .lean();
-
-        const user = await this.userModel.findById(user_id);
 
 
 
@@ -42,18 +43,7 @@ export class MessageService {
         }));
 
 
-
-        // return {
-        //     messages: filter_messages,
-        //     profile: {
-        //         name: user?.name,
-        //         avatar: user?.profilePhotoUrl
-        //     }
-        // }
-
         return filter_messages;
-     
-      
 
 
 

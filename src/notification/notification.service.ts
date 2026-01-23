@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { DeliveryService } from 'src/chat/services/delivery.service';
-import { ChatGateway } from 'src/chat/gateways/chat.gateway';
 
 
 @Injectable()
