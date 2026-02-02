@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
-// import serviceAccountKey from '../../telepoke-firebase.json'; // default import
-import serviceAccountKey from '../../telepoke-firebase1.json'; // default import
+import serviceAccountKey from '../../telepoke-firebase1.json';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/user/schemas/user.schema';
 import { Model } from 'mongoose';
